@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=1.0">
+    <title>Claude AI Project Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .toolbar {
+            background: #f8fafc;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .btn:hover, .btn:active {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-gdrive {
+            background: #34a853;
+        }
+
+        .btn-gdrive:hover {
+            background: #2d8e47;
+        }
+        
+        .btn.loading {
+            cursor: progress;
+            opacity: 0.7;
+        }
+        
+        .btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .filename-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 200px;
+            transition: all 0.2s;
+        }
+
+        .filename-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .field-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .gdrive-folder-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.2s;
+        }
+
+        .gdrive-folder-input:focus {
+            outline: none;
+            border-color: #34a853;
+            box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.1);
+        }
+
+        .editor-container {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .title-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .title-input:focus {
+            border-bottom: 2px solid #4f46e5;
+        }
+
+        .title-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .editor {
+            width: 100%;
+            min-height: 400px;
+            border: none;
+            outline: none;
+            resize: vertical;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #374151;
+            background: transparent;
+            font-family: inherit;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .editor:focus {
+            border: 2px solid #4f46e5;
+            background: #fafbff;
+        }
+
+        .editor::placeholder {
+            color: #9ca3af;
+        }
+
+        .stats {
+            background: #f1f5f9;
+            padding: 15px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .tag-input {
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 150px;
+            margin-right: 10px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #ddd6fe;
+            color: #5b21b6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag:hover {
+            background: #c4b5fd;
+        }
+
+        .auto-save-indicator {
+            font-size: 12px;
+            color: #10b981;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 10px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .success-message.show {
+            opacity: 1;
+        }
+
+        .gdrive-info {
+            background: #e8f5e8;
+            border: 1px solid #34a853;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #1b5e20;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .filename-input, .tag-input, .gdrive-folder-input {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                min-height: 44px;
+                margin-top: 5px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 15px 20px;
+                font-size: 16px;
+                min-height: 50px;
+                margin: 5px 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .field-label {
+                font-size: 16px;
+                margin: 15px 0 5px 0;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .editor-container {
+                padding: 20px;
+            }
+            
+            .title-input {
+                font-size: 24px;
+                padding: 15px 0;
+            }
+            
+            .editor {
+                font-size: 16px;
+                min-height: 300px;
+                margin-top: 5px;
+            }
+
+            .toolbar > div {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Claude AI Project Notes</h1>
+            <div class="auto-save-indicator" id="autoSaveIndicator">✓ Draft saved</div>
+        </div>
+
+        <div class="toolbar">
+            <div>
+                <label class="field-label" for="filename">📁 Filename:</label>
+                <input type="text" class="filename-input" id="filename" placeholder="Enter filename...">
+            </div>
+
+            <div>
+                <label class="field-label" for="gdriveFolder">📂 Google Drive Folder:</label>
+                <input type="text" class="gdrive-folder-input" id="gdriveFolder" placeholder="Claude-AI-Projects (optional)">
+            </div>
+            
+            <div>
+                <label class="field-label" for="tagInput">🏷️ Add Tags:</label>
+                <input type="text" class="tag-input" id="tagInput" placeholder="Type tag and press Enter">
+            </div>
+            
+            <div id="successMessage" class="success-message">Action completed successfully!</div>
+            
+            <div class="button-group">
+                <button class="btn" id="downloadBtn">💾 Download</button>
+                <button class="btn btn-gdrive" id="gdriveBtn">📤 Save to Google Drive</button>
+                <button class="btn btn-secondary" id="newNoteBtn">📄 New Note</button>
+                <button class="btn btn-secondary" id="loadBtn">📁 Load File</button>
+            </div>
+            
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+        </div>
+
+        <div class="editor-container">
+            <label class="field-label" for="title">📝 Note Title:</label>
+            <input type="text" class="title-input" id="title" placeholder="Enter your note title here...">
+            
+            <div class="tags" id="tags"></div>
+            
+            <label class="field-label" for="editor">✍️ Note Content:</label>
+            <textarea class="editor" id="editor" placeholder="Start writing your Claude AI project notes here...
+
+You can organize:
+• Project ideas and concepts
+• Prompt engineering experiments  
+• Model performance observations
+• Research findings and insights
+• Development logs and progress
+• Questions and hypotheses
+
+When ready, save directly to Google Drive! 🚀"></textarea>
+        </div>
+
+        <div class="stats">
+            <div>
+                <span id="wordCount">0</span> words • <span id="charCount">0</span> characters
+            </div>
+            <div>
+                Last modified: <span id="lastModified">Never</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tags = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            newNote(true);
+        });
+
+        function setupEventListeners() {
+            document.getElementById('downloadBtn').addEventListener('click', downloadNote);
+            document.getElementById('gdriveBtn').addEventListener('click', saveToGoogleDrive);
+            document.getElementById('newNoteBtn').addEventListener('click', () => newNote(false));
+            document.getElementById('loadBtn').addEventListener('click', loadNote);
+            document.getElementById('fileInput').addEventListener('change', handleFileLoad);
+            document.getElementById('tagInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+
+            document.getElementById('title').addEventListener('input', updateStats);
+            document.getElementById('editor').addEventListener('input', () => {
+                updateStats();
+                autoSave();
+            });
+
+            // Set default Google Drive folder
+            document.getElementById('gdriveFolder').value = 'Claude-AI-Projects';
+        }
+
+        function updateStats() {
+            const content = document.getElementById('title').value + ' ' + document.getElementById('editor').value;
+            const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = content.length;
+            document.getElementById('lastModified').textContent = new Date().toLocaleTimeString();
+        }
+
+        function autoSave() {
+            const indicator = document.getElementById('autoSaveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            setTimeout(() => successDiv.classList.remove('show'), 3000);
+        }
+
+        function createNoteData() {
+            const title = document.getElementById('title').value || 'Untitled';
+            const content = document.getElementById('editor').value;
+            
+            return {
+                title: title,
+                content: content,
+                tags: tags,
+                lastModified: new Date().toISOString()
+            };
+        }
+
+        function downloadNote() {
+            const title = document.getElementById('title').value || 'Untitled';
+            const content = document.getElementById('editor').value;
+            let filename = document.getElementById('filename').value || 'notes';
+
+            if (!content.trim() && !title.trim()) {
+                showSuccess('⚠️ Add content before downloading!');
+                return;
+            }
+
+            const noteData = createNoteData();
+            const blob = new Blob([JSON.stringify(noteData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSuccess('💾 Note downloaded successfully!');
+        }
+
+        function saveToGoogleDrive() {
+            const title = document.getElementById('title').value || 'Untitled';
+            const content = document.getElementById('editor').value;
+            let filename = document.getElementById('filename').value || 'notes';
+            const folderName = document.getElementById('gdriveFolder').value || 'Claude-AI-Projects';
+
+            if (!content.trim() && !title.trim()) {
+                showSuccess('⚠️ Add content before saving to Google Drive!');
+                return;
+            }
+
+            const btn = document.getElementById('gdriveBtn');
+            btn.classList.add('loading');
+            btn.textContent = '📤 Preparing...';
+
+            try {
+                // Create the note data
+                const noteData = createNoteData();
+                const jsonContent = JSON.stringify(noteData, null, 2);
+                const blob = new Blob([jsonContent], { type: 'application/json' });
+                
+                // Try Web Share API first (mobile-friendly)
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], `${filename}.json`, { type: 'application/json' });
+                    
+                    if (navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: `Claude AI Note: ${title}`,
+                            text: `Sharing note for ${folderName} folder`
+                        }).then(() => {
+                            showSuccess(`📤 Note shared! Select Google Drive to save to "${folderName}" folder.`);
+                        }).catch((error) => {
+                            if (error.name !== 'AbortError') {
+                                console.log('Share failed, trying download method');
+                                fallbackToDownload(blob, filename, folderName);
+                            }
+                        }).finally(() => {
+                            resetGDriveButton();
+                        });
+                        return;
+                    }
+                }
+
+                // Fallback: Download + Google Drive
+                fallbackToDownload(blob, filename, folderName);
+
+            } catch (error) {
+                console.error('Error saving to Google Drive:', error);
+                showSuccess('❌ Error preparing file. Please try again.');
+                resetGDriveButton();
+            }
+        }
+
+        function fallbackToDownload(blob, filename, folderName) {
+            // Force download the file
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.json`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            
+            // Ensure download happens
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+
+            // Open Google Drive with upload interface
+            setTimeout(() => {
+                // Use Google Drive upload URL that opens the upload dialog
+                const driveUploadUrl = 'https://drive.google.com/drive/u/0/upload';
+                const newWindow = window.open(driveUploadUrl, '_blank');
+                
+                if (newWindow) {
+                    showSuccess(`📁 Step 1: File downloaded to your device
+📤 Step 2: Google Drive upload opened
+📂 Step 3: Upload the "${filename}.json" file to "${folderName}" folder
+
+Tip: Look in your Downloads folder for the file!`);
+                } else {
+                    // Popup blocked, provide manual instructions
+                    showSuccess(`📁 File downloaded as "${filename}.json"
+
+To save to Google Drive:
+1. Check your Downloads folder
+2. Go to drive.google.com
+3. Upload the file to "${folderName}" folder`);
+                }
+                
+                resetGDriveButton();
+            }, 1000);
+        }
+
+        function resetGDriveButton() {
+            const btn = document.getElementById('gdriveBtn');
+            btn.classList.remove('loading');
+            btn.textContent = '📤 Save to Google Drive';
+        }
+
+        function newNote(isInitial) {
+            if (!isInitial) {
+                const hasContent = document.getElementById('title').value.trim() || document.getElementById('editor').value.trim();
+                if (hasContent && !confirm('Start a new note? Any unsaved changes will be lost.')) {
+                    return;
+                }
+            }
+
+            const now = new Date();
+            const pad = (num) => num.toString().padStart(2, '0');
+            const defaultFilename = `note-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+
+            document.getElementById('title').value = '';
+            document.getElementById('editor').value = '';
+            document.getElementById('filename').value = defaultFilename;
+            tags = [];
+            updateTagsDisplay();
+            updateStats();
+            document.getElementById('title').focus();
+            if (!isInitial) {
+                showSuccess('📄 New note started! Ready for your Claude AI insights.');
+            }
+        }
+
+        function loadNote() {
+            const hasContent = document.getElementById('title').value.trim() || document.getElementById('editor').value.trim();
+            if (hasContent && !confirm('Load a file? This will replace your current note.')) {
+                return;
+            }
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const noteData = JSON.parse(e.target.result);
+                        document.getElementById('title').value = noteData.title || '';
+                        document.getElementById('editor').value = noteData.content || '';
+                        tags = noteData.tags || [];
+                        document.getElementById('filename').value = file.name.replace(/\.[^/.]+$/, "");
+                        updateTagsDisplay();
+                        updateStats();
+                        showSuccess(`📁 Successfully loaded "${file.name}" from Google Drive!`);
+                        document.getElementById('editor').focus();
+                    } catch (error) {
+                        showSuccess('❌ Error: Invalid JSON file format.');
+                        console.error('File load error:', error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            event.target.value = '';
+        }
+
+        function addTag() {
+            const tagInput = document.getElementById('tagInput');
+            const tagValue = tagInput.value.trim();
+            if (tagValue && !tags.includes(tagValue)) {
+                tags.push(tagValue);
+                updateTagsDisplay();
+                tagInput.value = '';
+                showSuccess(`🏷️ Added tag: "${tagValue}"`);
+            } else if (tags.includes(tagValue)) {
+                showSuccess('⚠️ Tag already exists!');
+            }
+        }
+
+        function removeTag(tagToRemove) {
+            tags = tags.filter(tag => tag !== tagToRemove);
+            updateTagsDisplay();
+            showSuccess(`🗑️ Removed tag: "${tagToRemove}"`);
+        }
+
+        function updateTagsDisplay() {
+            const tagsContainer = document.getElementById('tags');
+            tagsContainer.innerHTML = '';
+            tags.forEach((tag) => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'tag';
+                tagElement.textContent = tag;
+                const removeAction = () => removeTag(tag);
+                tagElement.addEventListener('click', removeAction);
+                tagElement.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    removeAction();
+                });
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+    </script>
+</body>
+</html>
